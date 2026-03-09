@@ -11,7 +11,8 @@ class RobotState(Enum):
 
 
 class PatrolFSM:
-    def __init__(self):
+    def __init__(self, controller):
+        self.controller = controller
         self.state = RobotState.IDLE
         self.state_start_time = time.time()
         self.detection_counter = 0
@@ -20,14 +21,23 @@ class PatrolFSM:
     # ------------------------
     # Public Update Method
     # ------------------------
-    def update(self, human_detected=False):
-        self.handle_transitions(human_detected)
+    def update(self, inputs: dict):
+        """
+        inputs example:
+        {
+            "human_detected": bool,
+            "obstacle_detected": bool
+        }
+        """
+        self.handle_transitions(inputs)
         self.execute_state_action()
 
     # ------------------------
     # Transition Logic
     # ------------------------
-    def handle_transitions(self, human_detected):
+    def handle_transitions(self, inputs):
+
+        human_detected = inputs.get("human_detected", False)
 
         if self.state == RobotState.IDLE:
             self.transition_to(RobotState.PATROL)
@@ -38,12 +48,10 @@ class PatrolFSM:
             else:
                 self.detection_counter = 0
 
-            # Require confirmation (2 consecutive detections)
             if self.detection_counter >= 2:
                 self.transition_to(RobotState.HUMAN_DETECTED)
 
         elif self.state == RobotState.HUMAN_DETECTED:
-            # Brief investigation period
             if self.time_in_state() > 2:
                 self.transition_to(RobotState.CAPTURE_IMAGE)
 
@@ -71,15 +79,19 @@ class PatrolFSM:
 
         if self.state == RobotState.PATROL:
             print("Patrolling route...")
+            self.controller.patrol()
 
         elif self.state == RobotState.HUMAN_DETECTED:
             print("Investigating potential human...")
+            self.controller.investigate()
 
         elif self.state == RobotState.CAPTURE_IMAGE:
             print("Capturing image from camera...")
+            self.controller.capture_image()
 
         elif self.state == RobotState.SEND_ALERT:
             print("Sending alert to monitoring system...")
+            self.controller.send_alert()
 
         print(f"Current State: {self.state.name}\n")
 
