@@ -7,29 +7,41 @@ class RobotController:
 
     def __init__(self):
         self.motors = MotorController()
+        self.forward_duration_sec = 4.0
+        self.turn_duration_sec = 0.95
+        self.forward_speed = 0.24
+        self.turn_speed = 0.30
+        self.patrol_segment = "forward"
+        self.segment_start_time = time.time()
+
+    def reset_patrol_timing(self):
+        self.patrol_segment = "forward"
+        self.segment_start_time = time.time()
 
     # --------------------------------
-    # Patrol Behavior (Wall-Following)
+    # Patrol Behavior (Rectangle Perimeter)
     # --------------------------------
     def patrol(self):
+        now = time.time()
+        elapsed = now - self.segment_start_time
 
-        print("Wall-follow patrol...", flush=True)
+        print(f"segment={self.patrol_segment} elapsed={elapsed:.2f}", flush=True)
 
-        # Base forward speed
-        base_speed = 0.24
+        if self.patrol_segment == "forward":
+            print("Rectangle patrol: forward segment...", flush=True)
+            self.motors.forward(self.forward_speed)
 
-        # Small steering drift so robot slowly curves
-        drift = random.uniform(-0.03, 0.03)
+            if elapsed >= self.forward_duration_sec:
+                self.patrol_segment = "turn"
+                self.segment_start_time = now
 
-        left_speed = base_speed + drift
-        right_speed = base_speed - drift
+        else:
+            print("Rectangle patrol: turning segment...", flush=True)
+            self.motors.left(self.turn_speed)
 
-        # Clamp speeds so they stay safe
-        left_speed = max(0.18, min(0.30, left_speed))
-        right_speed = max(0.18, min(0.30, right_speed))
-
-        # Apply the speeds
-        self.motors.set_speeds(left_speed, right_speed)
+            if elapsed >= self.turn_duration_sec:
+                self.patrol_segment = "forward"
+                self.segment_start_time = now
 
     # --------------------------------
     # Obstacle Avoidance
@@ -57,6 +69,7 @@ class RobotController:
 
         # Step 4: Resume forward motion
         self.motors.forward(0.22)
+        self.reset_patrol_timing()
 
     # --------------------------------
     # Emergency Stop

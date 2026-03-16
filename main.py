@@ -34,7 +34,7 @@ try:
         # -----------------------------
         # Bump sensor check
         # -----------------------------
-        bump_detected = False
+        bump_detected = detect_bump()
 
 
         # -----------------------------
