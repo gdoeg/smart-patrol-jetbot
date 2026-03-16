@@ -21,12 +21,6 @@ net = jetson_inference.detectNet(
 
 
 # -----------------------------
-# Start CSI camera
-# -----------------------------
-camera = jetson_utils.videoSource("csi://0")
-
-
-# -----------------------------
 # Evidence folder
 # -----------------------------
 EVIDENCE_DIR = "evidence"
@@ -39,33 +33,31 @@ os.makedirs(EVIDENCE_DIR, exist_ok=True)
 person_present = False
 
 
-def detect_person(video_source=None):
+def detect_person(frame):
+
     global person_present
 
-    source = video_source if video_source is not None else camera
-    img = source.Capture()
-
-    if img is None:
-        print("⚠️ No frame captured")
+    if frame is None:
+        print("⚠️ No frame received")
         return False, False
 
 
     # -----------------------------
     # Convert CUDA → numpy
     # -----------------------------
-    frame = jetson_utils.cudaToNumpy(img)
+    frame_np = jetson_utils.cudaToNumpy(frame)
 
 
     # -----------------------------
     # Fix camera orientation
     # -----------------------------
-    frame = cv2.rotate(frame, cv2.ROTATE_180)
+    frame_np = cv2.rotate(frame_np, cv2.ROTATE_180)
 
 
     # -----------------------------
     # Convert numpy → CUDA
     # -----------------------------
-    img = jetson_utils.cudaFromNumpy(frame)
+    img = jetson_utils.cudaFromNumpy(frame_np)
 
 
     # -----------------------------
@@ -78,8 +70,6 @@ def detect_person(video_source=None):
     person_detected = False
     obstacle_detected = False
 
-    frame_height = frame.shape[0]
-
 
     for detection in detections:
 
@@ -88,6 +78,7 @@ def detect_person(video_source=None):
 
         print(f"Detected: {class_name} ({confidence:.2f})")
 
+
         # -----------------------------
         # HUMAN DETECTION
         # -----------------------------
@@ -95,9 +86,6 @@ def detect_person(video_source=None):
 
             person_detected = True
 
-            # -----------------------------
-            # Only send alert if person just appeared
-            # -----------------------------
             if not person_present:
 
                 filename = f"{EVIDENCE_DIR}/evidence_{int(time.time())}.jpg"

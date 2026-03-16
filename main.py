@@ -26,17 +26,10 @@ try:
 
     while True:
 
-        # -----------------------------
-        # HUMAN DETECTION
-        # -----------------------------
-        human_detected, _ = detect_person(camera)
-
-
-        # -----------------------------
-        # CAMERA OBSTACLE DETECTION
-        # -----------------------------
-        vision_obstacle = detect_obstacle(camera)
-
+    
+        frame = camera.Capture()
+        human_detected, _ = detect_person(frame)
+        vision_obstacle = detect_obstacle(frame)
 
         # -----------------------------
         # FUTURE SENSORS (placeholders)
