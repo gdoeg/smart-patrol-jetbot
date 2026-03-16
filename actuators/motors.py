@@ -70,5 +70,8 @@ class MotorController:
             self.stop()
 
     def stop(self):
+        self.left_motor.setSpeed(0)
+        self.right_motor.setSpeed(0)
+
         self.left_motor.run(Adafruit_MotorHAT.RELEASE)
         self.right_motor.run(Adafruit_MotorHAT.RELEASE)

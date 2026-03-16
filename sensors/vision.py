@@ -39,10 +39,11 @@ os.makedirs(EVIDENCE_DIR, exist_ok=True)
 person_present = False
 
 
-def detect_person():
+def detect_person(video_source=None):
     global person_present
 
-    img = camera.Capture()
+    source = video_source if video_source is not None else camera
+    img = source.Capture()
 
     if img is None:
         print("⚠️ No frame captured")

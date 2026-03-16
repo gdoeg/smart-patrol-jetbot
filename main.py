@@ -29,7 +29,7 @@ try:
         # -----------------------------
         # HUMAN DETECTION
         # -----------------------------
-        human_detected, _ = detect_person()
+        human_detected, _ = detect_person(camera)
 
 
         # -----------------------------
@@ -69,5 +69,8 @@ try:
 
 
 except KeyboardInterrupt:
-    print("Stopping robot motors...")
+    print("Keyboard interrupt received. Stopping robot motors...")
+except Exception as e:
+    print(f"Unhandled exception: {e}")
+finally:
     controller.stop()

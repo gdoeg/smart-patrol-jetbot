@@ -17,6 +17,8 @@ class PatrolFSM:
         self.state_start_time = time.time()
         self.detection_counter = 0
         self.latest_inputs = {}
+        self.obstacle_cooldown_sec = 1.5
+        self.last_obstacle_avoid_time = 0.0
         print(f"Initial State: {self.state.name}", flush=True)
         self.transition_to(RobotState.PATROL)
 
@@ -89,8 +91,14 @@ class PatrolFSM:
 
         if self.state == RobotState.PATROL:
             if self.latest_inputs.get("obstacle_detected", False):
-                print("Obstacle detected during patrol. Avoiding...", flush=True)
-                self.controller.avoid_obstacle()
+                now = time.time()
+                if now - self.last_obstacle_avoid_time >= self.obstacle_cooldown_sec:
+                    print("Obstacle detected during patrol. Avoiding...", flush=True)
+                    self.controller.avoid_obstacle()
+                    self.last_obstacle_avoid_time = now
+                else:
+                    print("Obstacle cooldown active. Holding position.", flush=True)
+                    self.controller.stop()
             else:
                 print("Patrolling route...", flush=True)
                 self.controller.patrol()
