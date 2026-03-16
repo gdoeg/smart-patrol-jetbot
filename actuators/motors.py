@@ -29,47 +29,80 @@ class MotorController:
         speed = max(0.0, min(1.0, float(speed)))
         return int(speed * 255)
 
-    def forward(self, speed=0.2, duration=None):
-        power = self._speed_to_power(speed)
-        self.left_motor.setSpeed(power)
-        self.right_motor.setSpeed(power)
+    # --------------------------------
+    # Direct wheel speed control
+    # --------------------------------
+    def set_speeds(self, left_speed, right_speed):
+
+        left_power = self._speed_to_power(left_speed)
+        right_power = self._speed_to_power(right_speed)
+
+        self.left_motor.setSpeed(left_power)
+        self.right_motor.setSpeed(right_power)
+
         self.left_motor.run(Adafruit_MotorHAT.FORWARD)
         self.right_motor.run(Adafruit_MotorHAT.FORWARD)
+
+    # --------------------------------
+    # Basic movements
+    # --------------------------------
+    def forward(self, speed=0.2, duration=None):
+        power = self._speed_to_power(speed)
+
+        self.left_motor.setSpeed(power)
+        self.right_motor.setSpeed(power)
+
+        self.left_motor.run(Adafruit_MotorHAT.FORWARD)
+        self.right_motor.run(Adafruit_MotorHAT.FORWARD)
+
         if duration:
             time.sleep(duration)
             self.stop()
 
     def backward(self, speed=0.2, duration=None):
         power = self._speed_to_power(speed)
+
         self.left_motor.setSpeed(power)
         self.right_motor.setSpeed(power)
+
         self.left_motor.run(Adafruit_MotorHAT.BACKWARD)
         self.right_motor.run(Adafruit_MotorHAT.BACKWARD)
+
         if duration:
             time.sleep(duration)
             self.stop()
 
     def left(self, speed=0.2, duration=None):
         power = self._speed_to_power(speed)
+
         self.left_motor.setSpeed(power)
         self.right_motor.setSpeed(power)
+
         self.left_motor.run(Adafruit_MotorHAT.BACKWARD)
         self.right_motor.run(Adafruit_MotorHAT.FORWARD)
+
         if duration:
             time.sleep(duration)
             self.stop()
 
     def right(self, speed=0.2, duration=None):
         power = self._speed_to_power(speed)
+
         self.left_motor.setSpeed(power)
         self.right_motor.setSpeed(power)
+
         self.left_motor.run(Adafruit_MotorHAT.FORWARD)
         self.right_motor.run(Adafruit_MotorHAT.BACKWARD)
+
         if duration:
             time.sleep(duration)
             self.stop()
 
+    # --------------------------------
+    # Emergency stop
+    # --------------------------------
     def stop(self):
+
         self.left_motor.setSpeed(0)
         self.right_motor.setSpeed(0)
 

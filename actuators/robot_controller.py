@@ -9,27 +9,27 @@ class RobotController:
         self.motors = MotorController()
 
     # --------------------------------
-    # Patrol Behavior
+    # Patrol Behavior (Wall-Following)
     # --------------------------------
     def patrol(self):
 
-        print("Patrolling route...", flush=True)
+        print("Wall-follow patrol...", flush=True)
 
-        # Add slight randomness so patrol paths do not stay perfectly linear.
-        if random.random() < 0.06:
+        # Base forward speed
+        base_speed = 0.24
 
-            turn_dir = random.choice(["left", "right"])
-            turn_duration = random.uniform(0.08, 0.18)
+        # Small steering drift so robot slowly curves
+        drift = random.uniform(-0.03, 0.03)
 
-            print(f"Adjusting direction: {turn_dir}", flush=True)
+        left_speed = base_speed + drift
+        right_speed = base_speed - drift
 
-            if turn_dir == "left":
-                self.motors.left(0.20, duration=turn_duration)
-            else:
-                self.motors.right(0.20, duration=turn_duration)
+        # Clamp speeds so they stay safe
+        left_speed = max(0.18, min(0.30, left_speed))
+        right_speed = max(0.18, min(0.30, right_speed))
 
-        # Continue forward patrol
-        self.motors.forward(0.24)
+        # Apply the speeds
+        self.motors.set_speeds(left_speed, right_speed)
 
     # --------------------------------
     # Obstacle Avoidance
@@ -55,10 +55,12 @@ class RobotController:
         else:
             self.motors.right(0.35, duration=turn_duration)
 
-        # Step 4: Resume patrol motion
+        # Step 4: Resume forward motion
         self.motors.forward(0.22)
 
-
+    # --------------------------------
+    # Emergency Stop
+    # --------------------------------
     def stop(self):
 
         print("Stopping motors...", flush=True)
