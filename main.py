@@ -32,9 +32,9 @@ try:
         vision_obstacle = detect_obstacle(frame)
 
         # -----------------------------
-        # FUTURE SENSORS (placeholders)
+        # Bump sensor check
         # -----------------------------
-        bump_detected = detect_bump()
+        bump_detected = False
 
 
         # -----------------------------

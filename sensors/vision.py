@@ -76,16 +76,24 @@ def detect_person(frame):
         class_name = net.GetClassDesc(detection.ClassID)
         confidence = detection.Confidence
 
+        # Log everything the model sees (very helpful for debugging)
         print(f"Detected: {class_name} ({confidence:.2f})")
+
+        # -----------------------------
+        # Ignore non-person objects
+        # -----------------------------
+        if class_name != "person":
+            continue
 
 
         # -----------------------------
         # HUMAN DETECTION
         # -----------------------------
-        if class_name == "person" and confidence > 0.5:
+        if confidence > 0.5:
 
             person_detected = True
 
+            # Only trigger alert when a new person appears
             if not person_present:
 
                 filename = f"{EVIDENCE_DIR}/evidence_{int(time.time())}.jpg"

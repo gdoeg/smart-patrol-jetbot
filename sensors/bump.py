@@ -1,15 +1,30 @@
 import Jetson.GPIO as GPIO
+import time
 
-BUMP_PIN = 17   # change depending on wiring
+BUMP_PIN = 18
 
+GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(BUMP_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+GPIO.setup(BUMP_PIN, GPIO.IN)
+
+last_trigger_time = 0
 
 
 def detect_bump():
 
-    if GPIO.input(BUMP_PIN) == GPIO.LOW:
-        print("⚠️ BUMP DETECTED")
-        return True
+    global last_trigger_time
+
+    state = GPIO.input(BUMP_PIN)
+
+    # Debounce sensor
+    if state == GPIO.LOW:
+
+        now = time.time()
+
+        if now - last_trigger_time > 1.0:
+            last_trigger_time = now
+            print("⚠️ BUMP DETECTED")
+            return True
 
     return False
