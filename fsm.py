@@ -18,11 +18,13 @@ class PatrolFSM:
         self.detection_counter = 0
         self.latest_inputs = {}
         print(f"Initial State: {self.state.name}", flush=True)
+        self.transition_to(RobotState.PATROL)
 
     # ------------------------
     # Public Update Method
     # ------------------------
     def update(self, inputs: dict):
+        print("FSM UPDATE RUNNING", flush=True)
         """
         inputs example:
         {
