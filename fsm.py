@@ -16,7 +16,7 @@ class PatrolFSM:
         self.state = RobotState.IDLE
         self.state_start_time = time.time()
         self.detection_counter = 0
-        print(f"Initial State: {self.state.name}")
+        print(f"Initial State: {self.state.name}", flush=True)
 
     # ------------------------
     # Public Update Method
@@ -67,7 +67,7 @@ class PatrolFSM:
     # Transition Helper
     # ------------------------
     def transition_to(self, new_state):
-        print(f"Transition: {self.state.name} → {new_state.name}")
+        print(f"Transition: {self.state.name} → {new_state.name}", flush=True)
         self.state = new_state
         self.state_start_time = time.time()
         self.detection_counter = 0
@@ -78,22 +78,22 @@ class PatrolFSM:
     def execute_state_action(self):
 
         if self.state == RobotState.PATROL:
-            print("Patrolling route...")
+            print("Patrolling route...", flush=True)
             self.controller.patrol()
 
         elif self.state == RobotState.HUMAN_DETECTED:
-            print("Investigating potential human...")
+            print("Investigating potential human...", flush=True)
             self.controller.investigate()
 
         elif self.state == RobotState.CAPTURE_IMAGE:
-            print("Capturing image from camera...")
+            print("Capturing image from camera...", flush=True)
             self.controller.capture_image()
 
         elif self.state == RobotState.SEND_ALERT:
-            print("Sending alert to monitoring system...")
+            print("Sending alert to monitoring system...", flush=True)
             self.controller.send_alert()
 
-        print(f"Current State: {self.state.name}\n")
+        print(f"Current State: {self.state.name}\n", flush=True)
 
     # ------------------------
     # Utility

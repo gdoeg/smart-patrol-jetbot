@@ -1,24 +1,22 @@
-import time
 from fsm import PatrolFSM
-from sensors.vision import detect_human
-from actuators.robot_controller import RobotController
+from controllers.robot_controller import RobotController
+from sensors.vision import detect_person
+from sensors.obstacle import obstacle_detected
+
+import time
 
 
-def main():
-
-    controller = RobotController()
-    fsm = PatrolFSM(controller)
-
-    while True:
-
-        human_detected = detect_human()
-
-        fsm.update({
-            "human_detected": human_detected
-        })
-
-        time.sleep(2)
+controller = RobotController()
+fsm = PatrolFSM(controller)
 
 
-if __name__ == "__main__":
-    main()
+while True:
+
+    inputs = {
+        "human_detected": detect_person(),
+        "obstacle_detected": obstacle_detected()
+    }
+
+    fsm.update(inputs)
+
+    time.sleep(0.1)
