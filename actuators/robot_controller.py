@@ -1,5 +1,5 @@
+import random
 from actuators.motors import MotorController
-from sensors.vision import detect_person
 
 
 class RobotController:
@@ -8,27 +8,35 @@ class RobotController:
         self.motors = MotorController()
 
     def patrol(self):
+
         print("Patrolling route...", flush=True)
-        self.motors.forward(0.2)
 
-    def investigate(self):
-        print("Investigating potential human...", flush=True)
-        self.motors.stop()
+        # Add slight randomness so patrol paths do not stay perfectly linear.
+        if random.random() < 0.12:
+            turn_dir = random.choice(["left", "right"])
+            turn_duration = random.uniform(0.20, 0.45)
+            print(f"Adjusting direction: {turn_dir}", flush=True)
+            if turn_dir == "left":
+                self.motors.left(0.30, duration=turn_duration)
+            else:
+                self.motors.right(0.30, duration=turn_duration)
 
-    def capture_image(self):
-        print("Capturing image...", flush=True)
-        detect_person()
-
-    def send_alert(self):
-        print("Alert already handled by vision system", flush=True)
+        self.motors.forward(0.22)
 
     def avoid_obstacle(self):
+
         print("Avoiding obstacle...", flush=True)
 
-        self.motors.backward(0.2)
-        time.sleep(0.5)
+        # Back away, rotate, then continue patrol motion.
+        self.motors.backward(0.22, duration=0.35)
 
-        self.motors.left(0.3)
-        time.sleep(0.5)
+        turn_dir = random.choice(["left", "right"])
+        turn_duration = random.uniform(0.35, 0.65)
 
-        self.motors.forward(0.2)
+        print(f"Obstacle avoidance turn: {turn_dir}", flush=True)
+        if turn_dir == "left":
+            self.motors.left(0.35, duration=turn_duration)
+        else:
+            self.motors.right(0.35, duration=turn_duration)
+
+        self.motors.forward(0.22)

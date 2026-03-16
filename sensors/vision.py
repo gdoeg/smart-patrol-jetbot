@@ -46,7 +46,7 @@ def detect_person():
 
     if img is None:
         print("⚠️ No frame captured")
-        return False
+        return False, False
 
 
     # -----------------------------
@@ -75,6 +75,9 @@ def detect_person():
     print(f"Detections found: {len(detections)}")
 
     person_detected = False
+    obstacle_detected = False
+
+    frame_height = frame.shape[0]
 
 
     for detection in detections:
@@ -84,10 +87,12 @@ def detect_person():
 
         print(f"Detected: {class_name} ({confidence:.2f})")
 
+        # -----------------------------
+        # HUMAN DETECTION
+        # -----------------------------
         if class_name == "person" and confidence > 0.5:
 
             person_detected = True
-
 
             # -----------------------------
             # Only send alert if person just appeared
@@ -109,7 +114,16 @@ def detect_person():
 
                 person_present = True
 
-            return True
+
+        # -----------------------------
+        # OBSTACLE DETECTION
+        # -----------------------------
+        # If object is close to bottom of frame it is likely in front of robot
+        if detection.Bottom > frame_height * 0.75 and detection.Width > 80:
+
+            print("⚠️ Obstacle detected in path")
+
+            obstacle_detected = True
 
 
     # -----------------------------
@@ -120,4 +134,4 @@ def detect_person():
         person_present = False
 
 
-    return False
+    return person_detected, obstacle_detected

@@ -1,7 +1,6 @@
 from fsm import PatrolFSM
-from controllers.robot_controller import RobotController
+from actuators.robot_controller import RobotController
 from sensors.vision import detect_person
-from sensors.obstacle import obstacle_detected
 
 import time
 
@@ -12,9 +11,11 @@ fsm = PatrolFSM(controller)
 
 while True:
 
+    human_detected, obstacle_detected = detect_person()
+
     inputs = {
-        "human_detected": detect_person(),
-        "obstacle_detected": obstacle_detected()
+        "human_detected": human_detected,
+        "obstacle_detected": obstacle_detected
     }
 
     fsm.update(inputs)

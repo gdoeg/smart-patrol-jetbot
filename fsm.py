@@ -16,6 +16,7 @@ class PatrolFSM:
         self.state = RobotState.IDLE
         self.state_start_time = time.time()
         self.detection_counter = 0
+        self.latest_inputs = {}
         print(f"Initial State: {self.state.name}", flush=True)
 
     # ------------------------
@@ -29,6 +30,7 @@ class PatrolFSM:
             "obstacle_detected": bool
         }
         """
+        self.latest_inputs = inputs
         self.handle_transitions(inputs)
         self.execute_state_action()
 
@@ -38,11 +40,17 @@ class PatrolFSM:
     def handle_transitions(self, inputs):
 
         human_detected = inputs.get("human_detected", False)
+        obstacle_detected = inputs.get("obstacle_detected", False)
 
         if self.state == RobotState.IDLE:
             self.transition_to(RobotState.PATROL)
 
         elif self.state == RobotState.PATROL:
+            # Obstacle handling takes priority while patrolling.
+            if obstacle_detected:
+                self.detection_counter = 0
+                return
+
             if human_detected:
                 self.detection_counter += 1
             else:
@@ -78,8 +86,12 @@ class PatrolFSM:
     def execute_state_action(self):
 
         if self.state == RobotState.PATROL:
-            print("Patrolling route...", flush=True)
-            self.controller.patrol()
+            if self.latest_inputs.get("obstacle_detected", False):
+                print("Obstacle detected during patrol. Avoiding...", flush=True)
+                self.controller.avoid_obstacle()
+            else:
+                print("Patrolling route...", flush=True)
+                self.controller.patrol()
 
         elif self.state == RobotState.HUMAN_DETECTED:
             print("Investigating potential human...", flush=True)
