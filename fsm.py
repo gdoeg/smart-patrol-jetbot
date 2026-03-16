@@ -55,12 +55,12 @@ class PatrolFSM:
                 self.detection_counter = 0
                 return
 
-            if human_detected:
+            if human_detected and self.controller.patrol_segment == "forward":
                 self.detection_counter += 1
             else:
                 self.detection_counter = 0
 
-            if self.detection_counter >= 2:
+            if self.detection_counter >= 4:
                 self.transition_to(RobotState.HUMAN_DETECTED)
 
         elif self.state == RobotState.HUMAN_DETECTED:
@@ -79,6 +79,8 @@ class PatrolFSM:
     # Transition Helper
     # ------------------------
     def transition_to(self, new_state):
+        if self.state == RobotState.PATROL:
+            self.controller.reset_patrol_timing()
         print(f"Transition: {self.state.name} → {new_state.name}", flush=True)
         self.state = new_state
         self.state_start_time = time.time()

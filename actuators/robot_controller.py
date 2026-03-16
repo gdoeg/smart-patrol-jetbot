@@ -72,6 +72,14 @@ class RobotController:
         self.reset_patrol_timing()
 
     # --------------------------------
+    # Investigate (Human Detected)
+    # --------------------------------
+    def investigate(self):
+
+        print("Investigating human...", flush=True)
+        self.motors.stop()
+
+    # --------------------------------
     # Emergency Stop
     # --------------------------------
     def stop(self):
