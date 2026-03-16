@@ -13,6 +13,8 @@ class RobotController:
         self.turn_speed = 0.30
         self.patrol_segment = "forward"
         self.segment_start_time = time.time()
+        self.avoid_count = 0
+        self.initial_scan_done = False
 
     def reset_patrol_timing(self):
         self.patrol_segment = "forward"
@@ -22,6 +24,12 @@ class RobotController:
     # Patrol Behavior (Rectangle Perimeter)
     # --------------------------------
     def patrol(self):
+        if not self.initial_scan_done:
+            print("Scanning environment before patrol", flush=True)
+            self.motors.left(0.2, duration=2.0)
+            self.initial_scan_done = True
+            self.segment_start_time = time.time()
+
         now = time.time()
         elapsed = now - self.segment_start_time
 
@@ -46,9 +54,18 @@ class RobotController:
     # --------------------------------
     # Obstacle Avoidance
     # --------------------------------
-    def avoid_obstacle(self):
+    def avoid_obstacle(self, obstacle_side=None):
 
         print("Avoiding obstacle...", flush=True)
+        self.avoid_count += 1
+
+        if self.avoid_count >= 3:
+            print("Corner detected - performing escape maneuver", flush=True)
+            self.motors.left(0.35, duration=1.5)
+            self.avoid_count = 0
+            self.motors.forward(0.22)
+            self.reset_patrol_timing()
+            return
 
         # Step 1: Back away from obstacle
         self.motors.backward(0.25, duration=0.6)
@@ -56,8 +73,13 @@ class RobotController:
         # Step 2: Small pause so robot fully clears obstacle
         time.sleep(0.2)
 
-        # Step 3: Randomly turn away
-        turn_dir = random.choice(["left", "right"])
+        # Step 3: Turn away from vision obstacle side when available
+        if obstacle_side == "left":
+            turn_dir = "right"
+        elif obstacle_side == "right":
+            turn_dir = "left"
+        else:
+            turn_dir = random.choice(["left", "right"])
         turn_duration = random.uniform(0.30, 0.50)
 
         print(f"Obstacle avoidance turn: {turn_dir}", flush=True)

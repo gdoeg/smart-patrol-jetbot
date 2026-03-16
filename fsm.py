@@ -31,7 +31,8 @@ class PatrolFSM:
         inputs example:
         {
             "human_detected": bool,
-            "obstacle_detected": bool
+            "obstacle_detected": bool,
+            "obstacle_side": str | None
         }
         """
         self.latest_inputs = inputs
@@ -53,6 +54,7 @@ class PatrolFSM:
             # Obstacle handling takes priority while patrolling.
             if obstacle_detected:
                 self.detection_counter = 0
+                self.controller.reset_patrol_timing()
                 return
 
             if human_detected and self.controller.patrol_segment == "forward":
@@ -96,7 +98,8 @@ class PatrolFSM:
                 now = time.time()
                 if now - self.last_obstacle_avoid_time >= self.obstacle_cooldown_sec:
                     print("Obstacle detected during patrol. Avoiding...", flush=True)
-                    self.controller.avoid_obstacle()
+                    obstacle_side = self.latest_inputs.get("obstacle_side")
+                    self.controller.avoid_obstacle(obstacle_side=obstacle_side)
                     self.last_obstacle_avoid_time = now
                 else:
                     print("Obstacle cooldown active. Continuing recovery motion.", flush=True)

@@ -32,6 +32,18 @@ os.makedirs(EVIDENCE_DIR, exist_ok=True)
 # -----------------------------
 person_present = False
 
+# Only these COCO labels count as visual obstacles.
+OBSTACLE_CLASSES = {
+    "person",
+    "chair",
+    "couch",
+    "bench",
+    "table",
+    "tv",
+    "bed",
+    "refrigerator",
+}
+
 
 def detect_person(frame):
 
@@ -39,7 +51,7 @@ def detect_person(frame):
 
     if frame is None:
         print("⚠️ No frame received")
-        return False, False
+        return False, False, None
 
 
     # -----------------------------
@@ -53,6 +65,7 @@ def detect_person(frame):
     # -----------------------------
     frame_np = cv2.rotate(frame_np, cv2.ROTATE_180)
     frame_height = frame_np.shape[0]
+    frame_width = frame_np.shape[1]
 
 
     # -----------------------------
@@ -70,6 +83,7 @@ def detect_person(frame):
 
     person_detected = False
     obstacle_detected = False
+    obstacle_side = None
 
 
     for detection in detections:
@@ -77,10 +91,19 @@ def detect_person(frame):
         class_name = net.GetClassDesc(detection.ClassID)
         confidence = detection.Confidence
 
-        if confidence > 0.6 and detection.Bottom > frame_height * 0.75:
+        is_obstacle_class = class_name.lower() in OBSTACLE_CLASSES
+        if (
+            is_obstacle_class
+            and confidence > 0.6
+            and detection.Bottom > frame_height * 0.55
+        ):
             if not obstacle_detected:
                 print("Vision obstacle detected", flush=True)
             obstacle_detected = True
+            if detection.Center[0] < frame_width / 2:
+                obstacle_side = "left"
+            else:
+                obstacle_side = "right"
 
         # Log everything the model sees (very helpful for debugging)
         print(f"Detected: {class_name} ({confidence:.2f})")
@@ -126,4 +149,7 @@ def detect_person(frame):
         person_present = False
 
 
-    return person_detected, obstacle_detected
+    return person_detected, obstacle_detected, obstacle_side
+
+
+    return person_detected, obstacle_detected, obstacle_side

@@ -27,7 +27,7 @@ try:
 
     
         frame = camera.Capture()
-        human_detected, vision_obstacle_detected = detect_person(frame)
+        human_detected, vision_obstacle_detected, obstacle_side = detect_person(frame)
 
         # -----------------------------
         # Bump sensor check
@@ -43,7 +43,8 @@ try:
 
         inputs = {
             "human_detected": human_detected,
-            "obstacle_detected": obstacle_detected
+            "obstacle_detected": obstacle_detected,
+            "obstacle_side": obstacle_side
         }
 
 
