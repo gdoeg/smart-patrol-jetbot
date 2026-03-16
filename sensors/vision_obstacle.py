@@ -14,15 +14,16 @@ def detect_obstacle(video_source):
 
     h, w, _ = img.shape
 
-    # bottom region of image
     roi = img[int(h * 0.6):h, :]
 
     gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 
-    mean_intensity = np.mean(gray)
+    edges = cv2.Canny(gray, 50, 150)
 
-    # darker region means something is blocking view
-    if mean_intensity < 60:
+    edge_density = np.sum(edges) / edges.size
+
+    if edge_density > 0.2:
+        print("⚠️ Visual obstacle detected")
         return True
 
     return False

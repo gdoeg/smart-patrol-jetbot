@@ -115,17 +115,6 @@ def detect_person():
                 person_present = True
 
 
-        # -----------------------------
-        # OBSTACLE DETECTION
-        # -----------------------------
-        # If object is close to bottom of frame it is likely in front of robot
-        if detection.Bottom > frame_height * 0.75 and detection.Width > 80:
-
-            print("⚠️ Obstacle detected in path")
-
-            obstacle_detected = True
-
-
     # -----------------------------
     # Reset when person leaves
     # -----------------------------
