@@ -74,9 +74,6 @@ classDiagram
 
 ![Data Model](assets/mermaid-diagram.png)
 
-## System Data Model
-![FlowChart](assets/FSM-flowchart.png)
-
 
 ## Key Features
 
